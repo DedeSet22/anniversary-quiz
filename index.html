@@ -63,7 +63,7 @@
   <div id="slideshow" class="hidden"></div>
 
   <!-- Audio -->
-  <audio id="bg-music" autoplay loop></audio>
+  <audio id="bg-music" preload="auto" loop></audio>
 
   <script>
     const bgMusic = document.getElementById("bg-music");
@@ -105,7 +105,7 @@
       { type: "image", src: "photo1.jpg", caption: "Our first call together! when I was in Palembang lol" },
       { type: "image", src: "photo2.jpg", caption: "Our first date! Hayoo ini kita dimana dan makan es krim rasa apaa" },
       { type: "image", src: "photo3.jpg", caption: "This is when I left Samator :(. We were sadd at that time, but its for the better of us" },
-      { type: "grid", images: ["photo4.1.jpg","photo4.2.jpg"], caption: "When we finally became a couple! I remembered you cried waktu aku nembak kamuu" },
+      { type: "grid", images: ["photo4.1.jpg","photo4.2.jpg","photo4.3.jpg"], caption: "When we finally became a couple! I remembered you cried waktu aku nembak kamuu" },
       { type: "image", src: "photo5.jpg", caption: "Our first Christmas together, and as a couple" },
       { type: "grid", images: ["photo6.1.jpg","photo6.2.jpg","photo6.3.jpg","photo6.4.jpg"], caption: "When we celebrated our birthday togetherr. Ini yang 2024 dan 2025" },
       { type: "image", src: "photo7.jpg", caption: "Ah dan ini tali keberuntungan yang kamu kasih ke aku. You said so it can heal my wound" },
@@ -119,9 +119,12 @@
       document.getElementById("opening").classList.add("hidden");
       document.getElementById("quiz").classList.remove("hidden");
 
-      // Play Mario.mp3 di opening + quiz
+      // Play Mario.mp3 langsung dari klik tombol (aman untuk HP/laptop)
       bgMusic.src = "Mario.mp3";
-      bgMusic.play();
+      bgMusic.currentTime = 0;
+      bgMusic.play().catch(err => {
+        console.log("Autoplay blocked:", err);
+      });
 
       showQuestion();
     }
@@ -160,7 +163,10 @@
       // Ganti musik ke Lagu.mp3
       bgMusic.pause();
       bgMusic.src = "Lagu.mp3";
-      bgMusic.play();
+      bgMusic.currentTime = 0;
+      bgMusic.play().catch(err => {
+        console.log("Autoplay blocked:", err);
+      });
 
       startSlideshow();
     }
@@ -205,7 +211,7 @@
         }
 
         i++;
-        setTimeout(showNext, 10000); // ganti 10 detik
+        setTimeout(showNext, 10000); // semua slide stay 10 detik
       }
       showNext();
     }
