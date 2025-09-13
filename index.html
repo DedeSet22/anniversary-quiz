@@ -1,99 +1,205 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Anniversary Quiz</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
       font-family: Arial, sans-serif;
-      background: #fdf6f0;
+      background-color: #fff8f5;
       text-align: center;
+      padding: 20px;
+    }
+    button {
+      margin: 10px auto;
+      padding: 10px 20px;
+      background-color: #ffb6c1;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #ff8da1;
     }
     .page {
       display: none;
-      padding: 40px;
     }
-    .active {
-      display: block;
+    img {
+      max-width: 90%;
+      height: auto;
+      margin: 10px;
     }
-    .question {
-      font-size: 1.5em;
+    .grid {
+      display: grid;
+      gap: 10px;
+    }
+    .grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .grid-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .grid-5 {
+      grid-template-columns: repeat(5, 1fr);
+    }
+    h2 {
       margin-bottom: 20px;
     }
-    .btn {
-      display: inline-block;
-      padding: 10px 20px;
-      margin: 10px;
-      border: none;
-      border-radius: 8px;
-      background-color: #ffb6c1;
-      color: #333;
-      font-size: 1em;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .btn:hover {
-      background-color: #ff8fa3;
-    }
-    .slideshow img {
-      max-width: 80%;
-      border-radius: 12px;
-      margin: 10px 0;
-    }
-    .final-text {
-      font-size: 1.8em;
-      margin-top: 50px;
-      color: #e75480;
+    p {
+      font-size: 18px;
     }
   </style>
 </head>
 <body>
-
-  <!-- Page 1: Question -->
-  <div class="page active" id="page1">
-    <div class="question">Kapan pertama kali kita jalan bareng?</div>
-    <button class="btn" onclick="nextPage()">A. Januari 2023</button>
-    <button class="btn" onclick="nextPage()">B. Maret 2023</button>
-    <button class="btn" onclick="nextPage()">C. Mei 2023</button>
+  <!-- Opening -->
+  <div id="opening" class="page" style="display:block;">
+    <h1>Selamat datang di Quiz Anniversary Kita! 🎉</h1>
+    <p>Anda akan diarahkan menuju Quiz! Silahkan menjawab pertanyaan dengan benar untuk lanjut ke babak selanjutnya. Jika salah, ulang dari awal wahahaha 😘</p>
+    <button onclick="startQuiz()">Gass ke quiz</button>
   </div>
 
-  <!-- Page 2: Slideshow -->
-  <div class="page" id="page2">
-    <div class="slideshow">
-      <img src="foto1.jpg" alt="foto1"/>
-      <img src="foto2.jpg" alt="foto2"/>
-      <img src="foto3.jpg" alt="foto3"/>
-    </div>
-    <button class="btn" onclick="nextPage()">Next</button>
-  </div>
+  <!-- Quiz -->
+  <div id="quiz" class="page"></div>
 
-  <!-- Page 3: Last text -->
-  <div class="page" id="page3">
-    <div class="final-text">
-      Let's grow, create more and more memories together. <br>
-      I love you sayangg
-    </div>
-  </div>
+  <!-- After quiz pages -->
+  <div id="after-quiz" class="page"></div>
 
-  <!-- Background music -->
-  <audio id="bg-music" src="Lagu.mp3" autoplay loop></audio>
+  <!-- Music -->
+  <video id="bg-music" src="lagu1.mp4" style="display:none;" autoplay loop></video>
 
   <script>
-    let currentPage = 1;
+    // ===============================
+    // QUIZ SETUP
+    // ===============================
+    const questions = [
+      {
+        question: "Kapan tanggal kita first date?",
+        options: ["4 April 2024", "2 Maret 2024", "10 Februari 2024", "20 Januari 2024"],
+        answer: "2 Maret 2024"
+      },
+      {
+        question: "Waktu first date, Dede pakai baju seperti apa?",
+        options: ["Baju Polo Shirt Krem", "Baju Hem Putih", "Kaos Ala KCS", "Turtle Neck"],
+        answer: "Turtle Neck"
+      },
+      {
+        question: "Dimana Dede nembak kamu?",
+        options: ["Di Samator", "Union", "De Soematra", "Locaahands"],
+        answer: "De Soematra"
+      },
+      {
+        question: "Beli dimana bunga yang dikasih Dede waktu nembak?",
+        options: ["Fleurichi", "Amaneki", "La voire", "Bunga kebun sendiri"],
+        answer: "Amaneki"
+      },
+      {
+        question: "Bulan dan tahun berapa Dede deketin kamu?",
+        options: ["November 2024", "Januari 2025", "Desember 2024", "Maret 2025"],
+        answer: "Desember 2024"
+      }
+    ];
 
-    function nextPage() {
-      document.getElementById("page" + currentPage).classList.remove("active");
-      currentPage++;
-      document.getElementById("page" + currentPage).classList.add("active");
+    let currentQuestion = 0;
 
-      // kalau sudah sampai page 3, auto stay 2 detik lalu end
-      if (currentPage === 3) {
-        setTimeout(() => {
-          alert("Quiz selesai, love you! ❤️");
-        }, 2000);
+    function startQuiz() {
+      document.getElementById("opening").style.display = "none";
+      document.getElementById("quiz").style.display = "block";
+      currentQuestion = 0;
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const quizContainer = document.getElementById("quiz");
+      quizContainer.innerHTML = "";
+
+      const q = document.createElement("h2");
+      q.textContent = questions[currentQuestion].question;
+      quizContainer.appendChild(q);
+
+      questions[currentQuestion].options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.onclick = () => checkAnswer(option);
+        quizContainer.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected) {
+      if (selected === questions[currentQuestion].answer) {
+        if (currentQuestion < questions.length - 1) {
+          currentQuestion++;
+          showQuestion();
+        } else {
+          // quiz selesai
+          document.getElementById("quiz").style.display = "none";
+          startAfterQuiz();
+        }
+      } else {
+        // salah → balik ke opening
+        document.getElementById("quiz").style.display = "none";
+        document.getElementById("opening").style.display = "block";
+      }
+    }
+
+    // ===============================
+    // AFTER QUIZ PAGES
+    // ===============================
+    const pages = [
+      { text: "Yeyy kamu berhasil menjawab semua pertanyaannyaa 🎉", duration: 2000 },
+      { text: "Hari ini adalah Anniversary kita yang ke 1 tahunn. We have gone through a lot of things together dengan berbagai warna dan dinamika nya. Aku bersyukur bisa kenal sama Wanita cantik dan kuat sepertimu. Walaupun kamu terlihat fierce dan most of the time you are fierce, but deep down I know there is a soft spot in you. I am proud to accompany and create a lot of beautiful memories with you", duration: 5000, transition: true },
+      { text: "Let's create more memories together! Oh ya, I want to show few of the memories we created (because it is a lot)", duration: 2000 },
+
+      { img: ["photo1.jpg"], caption: "Our first call together! when I was in Palembang lol", duration: 2000 },
+      { img: ["photo2.jpg"], caption: "Our first date! Hayoo ini kita dimana dan makan es krim rasa apaa", duration: 2000 },
+      { img: ["photo3.jpg"], caption: "This is when I left Samator :(. We were sadd at that time, but its for the better of us", duration: 2000 },
+      { img: ["photo4.1.jpg","photo4.2.jpg","photo4.3.jpg"], caption: "When we finally became a couple! I remembered you cried waktu aku nembak kamuu", duration: 3000, grid: "grid-3" },
+      { img: ["photo5.jpg"], caption: "Our first Christams together, and as a couple", duration: 2000 },
+      { img: ["phot6.1.jpg","photo6.2.jpg","photo6.3.jpg","photo6.4.jpg"], caption: "When we celebrated our birthday togetherr. Ini yang 2024 dan 2025", duration: 2000, grid: "grid-4" },
+      { img: ["photo7.jpg"], caption: "Ah dan ini tali keberuntungan yang kamu kasih ke aku. You said so it can heal my wound", duration: 2000 },
+      { img: ["photo8.1.jpg","phot8.2.jpg","photo8.3.jpg","photo8.4.jpg","photo8.5.jpg","photo8.6.jpg","photo8.7.jpg","photo8.8.jpg","photo8.9.jpg","photo8.10.jpg","photo8.11.jpg","photo8.12.jpg","photo8.13.jpg"], caption: "Andd other memoriess", duration: 3000, grid: "grid-5" },
+
+      { text: "Let's grow, create more and more memories together. I love you sayangg ❤️", duration: 2000 }
+    ];
+
+    let pageIndex = 0;
+
+    function startAfterQuiz() {
+      document.getElementById("bg-music").style.display = "block";
+      document.getElementById("bg-music").play();
+      document.getElementById("after-quiz").style.display = "block";
+      pageIndex = 0;
+      showPage();
+    }
+
+    function showPage() {
+      const container = document.getElementById("after-quiz");
+      container.innerHTML = "";
+
+      const page = pages[pageIndex];
+      if (page.text) {
+        const p = document.createElement("p");
+        p.textContent = page.text;
+        container.appendChild(p);
+      }
+      if (page.img) {
+        const cap = document.createElement("h3");
+        cap.textContent = page.caption;
+        container.appendChild(cap);
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "grid " + (page.grid || "grid-1");
+        page.img.forEach(src => {
+          const img = document.createElement("img");
+          img.src = src;
+          wrapper.appendChild(img);
+        });
+        container.appendChild(wrapper);
+      }
+
+      pageIndex++;
+      if (pageIndex < pages.length) {
+        setTimeout(showPage, page.duration);
       }
     }
   </script>
