@@ -2,158 +2,100 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Anniversary Quiz</title>
   <style>
     body {
       margin: 0;
+      padding: 0;
       font-family: Arial, sans-serif;
-      background: #111;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      background: #fdf6f0;
       text-align: center;
-      overflow: hidden;
     }
-    .hidden { display: none; }
-    button {
+    .page {
+      display: none;
+      padding: 40px;
+    }
+    .active {
+      display: block;
+    }
+    .question {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+    }
+    .btn {
+      display: inline-block;
       padding: 10px 20px;
       margin: 10px;
-      font-size: 16px;
       border: none;
       border-radius: 8px;
+      background-color: #ffb6c1;
+      color: #333;
+      font-size: 1em;
       cursor: pointer;
-      background: #f39c12;
-      color: #fff;
+      transition: background 0.3s;
     }
-    .fade {
-      opacity: 0;
-      animation: fadeIn 1s forwards;
+    .btn:hover {
+      background-color: #ff8fa3;
     }
-    @keyframes fadeIn {
-      to { opacity: 1; }
-    }
-    img, video {
-      max-width: 90%;
-      max-height: 70vh;
+    .slideshow img {
+      max-width: 80%;
       border-radius: 12px;
-      margin: 10px;
+      margin: 10px 0;
     }
-    .grid {
-      display: grid;
-      gap: 10px;
-      justify-content: center;
-      align-items: center;
+    .final-text {
+      font-size: 1.8em;
+      margin-top: 50px;
+      color: #e75480;
     }
-    .grid-3 { grid-template-columns: repeat(3, 1fr); }
-    .grid-4 { grid-template-columns: repeat(2, 1fr); }
-    .grid-13 { grid-template-columns: repeat(4, 1fr); }
-    audio { display: none; }
   </style>
 </head>
 <body>
-  <div id="app"></div>
-  <audio id="bgm" src="lagu1.mp4" loop></audio>
+
+  <!-- Page 1: Question -->
+  <div class="page active" id="page1">
+    <div class="question">Kapan pertama kali kita jalan bareng?</div>
+    <button class="btn" onclick="nextPage()">A. Januari 2023</button>
+    <button class="btn" onclick="nextPage()">B. Maret 2023</button>
+    <button class="btn" onclick="nextPage()">C. Mei 2023</button>
+  </div>
+
+  <!-- Page 2: Slideshow -->
+  <div class="page" id="page2">
+    <div class="slideshow">
+      <img src="foto1.jpg" alt="foto1"/>
+      <img src="foto2.jpg" alt="foto2"/>
+      <img src="foto3.jpg" alt="foto3"/>
+    </div>
+    <button class="btn" onclick="nextPage()">Next</button>
+  </div>
+
+  <!-- Page 3: Last text -->
+  <div class="page" id="page3">
+    <div class="final-text">
+      Let's grow, create more and more memories together. <br>
+      I love you sayangg
+    </div>
+  </div>
+
+  <!-- Background music -->
+  <audio id="bg-music" src="Lagu.mp3" autoplay loop></audio>
 
   <script>
-    const app = document.getElementById('app');
-    const bgm = document.getElementById('bgm');
+    let currentPage = 1;
 
-    let step = 0;
-    let quizIndex = 0;
+    function nextPage() {
+      document.getElementById("page" + currentPage).classList.remove("active");
+      currentPage++;
+      document.getElementById("page" + currentPage).classList.add("active");
 
-    const quiz = [
-      {q: "Kapan tanggal kita first date?", opts: ["4 April 2024", "2 Maret 2024", "10 Februari 2024", "20 Januari 2024"], ans: 1},
-      {q: "Waktu first date, Dede pakai baju seperti apa?", opts: ["Baju Polo Shirt Krem","Baju Hem Putih","Kaos Ala KCS","Turtle Neck"], ans: 3},
-      {q: "Dimana Dede nembak kamu?", opts: ["Di Samator","Union","De Soematra","Locaahands"], ans: 2},
-      {q: "Beli dimana bunga yang dikasih Dede waktu nembak?", opts: ["Fleurichi","Amaneki","La voire","Bunga kebun sendiri"], ans: 1},
-      {q: "Bulan dan tahun berapa Dede deketin kamu?", opts: ["November 2024","Januari 2025","Desember 2024","Maret 2025"], ans: 2}
-    ];
-
-    const galleries = [
-      {type: 'text', content: "Yeyy kamu berhasil menjawab semua pertanyaannyaa", delay: 2000},
-      {type: 'text', content: "Hari ini adalah Anniversary kita yang ke 1 tahunn... Aku bersyukur bisa kenal sama wanita cantik dan kuat sepertimu...", delay: 5000},
-      {type: 'text', content: "Let's create more memories together! Oh ya, I want to show few of the memories we created...", delay: 2000},
-      {type: 'image', src: ["photo1.jpg"], caption: "Our first call together! when I was in Palembang lol", delay:2000},
-      {type: 'image', src: ["photo2.jpg"], caption: "Our first date! Hayoo ini kita dimana dan makan es krim rasa apaa", delay:2000},
-      {type: 'image', src: ["photo3.jpg"], caption: "This is when I left Samator :( ...", delay:2000},
-      {type: 'image', src: ["photo4.1.jpg","photo4.2.jpg","photo4.3.jpg"], caption: "When we finally became a couple!", grid:'grid-3', delay:3000},
-      {type: 'image', src: ["photo5.jpg"], caption: "Our first Christmas together, and as a couple", delay:2000},
-      {type: 'image', src: ["photo6.1.jpg","photo6.2.jpg","photo6.3.jpg","photo6.4.jpg"], caption: "When we celebrated our birthday together", grid:'grid-4', delay:2000},
-      {type: 'image', src: ["photo7.jpg"], caption: "Ah dan ini tali keberuntungan...", delay:2000},
-      {type: 'image', src: ["photo8.1.jpg","photo8.2.jpg","photo8.3.jpg","photo8.4.jpg","photo8.5.jpg","photo8.6.jpg","photo8.7.jpg","photo8.8.jpg","photo8.9.jpg","photo8.10.jpg","photo8.11.jpg","photo8.12.jpg","photo8.13.jpg"], caption: "And other memories", grid:'grid-13', delay:3000},
-      {type: 'text', content: "Let's grow, create more and more memories together. I love you sayangg", delay:2000},
-      {type: 'video', src:"Bonus.mp4", caption: "Bonus hehe"}
-    ];
-
-    function showOpening(){
-      app.innerHTML = `<div class="fade"><h1>Selamat datang di Quiz Anniversary Kita!</h1><p>Silahkan menjawab pertanyaan dengan benar untuk lanjut ke babak selanjutnya. Jika salah, ulang dari awal wahahaha.</p><button onclick="startQuiz()">Gass ke quiz</button></div>`;
-      step = 0;
-      quizIndex = 0;
-      bgm.pause();
-      bgm.currentTime = 0;
-    }
-
-    function startQuiz(){
-      showQuestion();
-    }
-
-    function showQuestion(){
-      const q = quiz[quizIndex];
-      let html = `<div class="fade"><h2>${q.q}</h2>`;
-      q.opts.forEach((opt,i)=>{
-        html += `<button onclick=checkAnswer(${i})>${opt}</button>`;
-      });
-      html += `</div>`;
-      app.innerHTML = html;
-    }
-
-    function checkAnswer(i){
-      if(i===quiz[quizIndex].ans){
-        quizIndex++;
-        if(quizIndex>=quiz.length){
-          startGallery();
-        } else {
-          showQuestion();
-        }
-      } else {
-        showOpening();
+      // kalau sudah sampai page 3, auto stay 2 detik lalu end
+      if (currentPage === 3) {
+        setTimeout(() => {
+          alert("Quiz selesai, love you! ❤️");
+        }, 2000);
       }
     }
-
-    function startGallery(){
-      bgm.play();
-      step=0;
-      showGalleryStep();
-    }
-
-    function showGalleryStep(){
-      const g = galleries[step];
-      let html = `<div class="fade">`;
-      if(g.type==='text'){
-        html += `<h2>${g.content}</h2>`;
-      } else if(g.type==='image'){
-        const grid = g.grid? g.grid:'';
-        html += `<h3>${g.caption}</h3><div class="grid ${grid}">`;
-        g.src.forEach(s=>{ html += `<img src="${s}"/>`; });
-        html += `</div>`;
-      } else if(g.type==='video'){
-        html += `<h3>${g.caption}</h3><video src="${g.src}" controls autoplay></video>`;
-      }
-      html += `</div>`;
-      app.innerHTML = html;
-
-      if(g.type!=='video'){
-        setTimeout(()=>{
-          step++;
-          if(step<galleries.length) showGalleryStep();
-        }, g.delay);
-      }
-    }
-
-    showOpening();
   </script>
 </body>
 </html>
